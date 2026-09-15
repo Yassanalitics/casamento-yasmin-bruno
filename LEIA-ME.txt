@@ -1,0 +1,27 @@
+SITE DO CASAMENTO — YASMIN E BRUNO
+
+1. Antes de publicar, abra o arquivo index.html em um editor de texto.
+2. Procure por "const CONFIG" e substitua:
+   - invitePassword: senha para visualizar o endereço;
+   - address: endereço real de entrega;
+   - pix: titular, chave e banco verdadeiros;
+   - rsvpEndpoint: endereço do formulário criado gratuitamente no Formspree.
+3. Abra presentes.html e edite a lista PRESENTES com nomes, imagens, preços e links reais da Shopee.
+4. Coloque a foto principal na pasta imagens com o nome foto-principal.jpg.
+5. Substitua também as três fotos de exemplo da seção Nossa história, se desejar.
+
+PUBLICAÇÃO NO GITHUB PAGES
+
+1. Crie um repositório público no GitHub.
+2. Envie o index.html, o presentes.html, este arquivo e a pasta imagens.
+3. Abra Settings > Pages.
+4. Em Source, escolha Deploy from a branch.
+5. Selecione main e /(root), depois clique em Save.
+
+ATENÇÃO À PRIVACIDADE
+
+A senha, o endereço e a chave Pix inseridos no index.html ficam visíveis no
+código-fonte do repositório público. A senha serve apenas como barreira casual.
+
+O formulário depende do Formspree porque o GitHub Pages hospeda apenas arquivos
+estáticos e não possui banco de dados próprio.
