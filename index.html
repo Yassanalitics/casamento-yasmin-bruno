@@ -454,12 +454,12 @@ p{margin:0;}
 
     <div class="address-box reveal">
       <div class="address-reveal">
-        <p class="address-hint">Caso escolha enviar o presente diretamente para nós, utilize o endereço de entrega. Por privacidade, informe a senha que consta no convite.</p>
+        <p class="address-hint">Para visualizar o endereço de entrega, informe o código que consta no convite.</p>
         <div class="address-pass">
-          <input type="text" id="addrPass" placeholder="Senha do convite">
+          <input type="text" id="addrPass" placeholder="Código do convite">
           <button class="btn-ghost" id="addrBtn" type="button">Visualizar endereço de entrega</button>
         </div>
-        <p class="address-error" id="addrError">Senha incorreta. Verifique o convite e tente novamente.</p>
+        <p class="address-error" id="addrError">Código incorreto. Verifique o convite e tente novamente.</p>
         <p class="address-text" id="addrText"></p>
         <p class="address-warning" id="addrWarning">Por segurança, confira se o endereço está correto antes de finalizar a compra. Se preferir, você também poderá receber o produto em sua casa e entregá-lo pessoalmente.</p>
       </div>
@@ -505,8 +505,6 @@ p{margin:0;}
    ========================================================= */
 const CONFIG = {
   weddingDateISO: "2027-05-08T17:00:00-03:00", // data e hora da cerimônia
-  invitePassword: "casamento2027",             // senha para ver o endereço (informe no convite)
-  address: "SQS 000 Bloco A, Apto 000 — Asa Sul, Brasília – DF, CEP 70000-000",
   pix: { titular: "Yasmin Oliveira", chave: "yasmin.bruno@pix.com.br", banco: "Banco do Brasil" },
   // Crie um formulário gratuito em https://formspree.io e cole aqui o endpoint fornecido.
   // Exemplo: "https://formspree.io/f/abcdefgh"
@@ -555,23 +553,61 @@ updateCountdown();
 setInterval(updateCountdown, 1000);
 
 /* ---------- Address reveal (privacy gate) ---------- */
-document.getElementById('addrBtn').addEventListener('click', () => {
-  const val = document.getElementById('addrPass').value.trim();
-  const errEl = document.getElementById('addrError');
-  const textEl = document.getElementById('addrText');
-  const warnEl = document.getElementById('addrWarning');
-  if (val === CONFIG.invitePassword) {
-    textEl.textContent = CONFIG.address;
-    textEl.style.display = 'block';
-    warnEl.style.display = 'block';
-    errEl.style.display = 'none';
-  } else {
-    errEl.style.display = 'block';
-    textEl.style.display = 'none';
-    warnEl.style.display = 'none';
+const WORKER_URL =
+  "https://casamento-endereco-api.yasminribeiro152005.workers.dev";
+
+const addrButton = document.getElementById("addrBtn");
+const addrInput = document.getElementById("addrPass");
+const addrError = document.getElementById("addrError");
+const addrText = document.getElementById("addrText");
+const addrWarning = document.getElementById("addrWarning");
+
+addrButton.addEventListener("click", async () => {
+  const codigo = addrInput.value.trim().toUpperCase();
+
+  addrError.style.display = "none";
+  addrText.style.display = "none";
+  addrWarning.style.display = "none";
+
+  if (!codigo) {
+    addrError.textContent =
+      "Digite o código informado no convite.";
+    addrError.style.display = "block";
+    return;
+  }
+
+  addrButton.disabled = true;
+  addrButton.textContent = "Verificando...";
+
+  try {
+    const response = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ codigo })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.erro || "Código inválido."
+      );
+    }
+
+    addrText.textContent = data.endereco;
+    addrText.style.display = "block";
+    addrWarning.style.display = "block";
+  } catch (error) {
+    addrError.textContent =
+      error.message || "Não foi possível verificar o código.";
+    addrError.style.display = "block";
+  } finally {
+    addrButton.disabled = false;
+    addrButton.textContent = "Visualizar endereço";
   }
 });
-
 /* ---------- Pix: fill values + QR + copy ---------- */
 document.getElementById('pixTitular').textContent = CONFIG.pix.titular;
 document.getElementById('pixChave').textContent = CONFIG.pix.chave;
